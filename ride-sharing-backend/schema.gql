@@ -1,0 +1,57 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type users {
+  username: String!
+  email: String!
+  password: String!
+  first_name: String!
+  last_name: String!
+  role: userRoles!
+  id: Float!
+}
+
+"""The supported roles."""
+enum userRoles {
+  DRIVER
+  CUSTOMER
+  USER
+  ADMIN
+}
+
+type LoginObject {
+  user: users!
+  accessToken: String!
+}
+
+type Query {
+  findAllUsers: [users!]!
+  user(id: Int!): users!
+}
+
+type Mutation {
+  signUp(createUserInput: CreateUserInput!): users!
+  updateUser(updateUserInput: UpdateUserInput!): users!
+  removeUser(id: Int!): users!
+  login(username: String!, password: String!): LoginObject!
+}
+
+input CreateUserInput {
+  username: String!
+  password: String!
+  email: String!
+  first_name: String!
+  last_name: String!
+  role: userRoles = USER
+}
+
+input UpdateUserInput {
+  username: String
+  password: String
+  email: String
+  first_name: String
+  last_name: String
+  role: userRoles = USER
+  id: Int!
+}
