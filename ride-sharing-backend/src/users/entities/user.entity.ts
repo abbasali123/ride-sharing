@@ -1,7 +1,8 @@
 // src/auth/user.entity.ts
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
-import Role from "src/enums/roles.enum";
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import Role from "../../enums/roles.enum";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Ride } from "src/rides/entities/ride.entity";
 
 registerEnumType(Role, {
   name: "userRoles",
@@ -33,6 +34,14 @@ export class User {
   @Column({ nullable: true })
   @Field()
   last_name: string;
+
+  @OneToMany(() => Ride, (customerRides) => customerRides.customer, { onUpdate: 'CASCADE', onDelete: "CASCADE" })
+  @Field(type => [Ride], { nullable: true })
+  customerRides: Ride[];
+
+  @OneToMany(() => Ride, (driverRides) => driverRides.driver, { onUpdate: 'CASCADE', onDelete: "CASCADE" })
+  @Field(type => [Ride], { nullable: true })
+  driverRides: Ride[];
 
   @Column({
     type: "enum",

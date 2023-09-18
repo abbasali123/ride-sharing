@@ -2,56 +2,170 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type users {
-  username: String!
+input AcceptRideInput {
+  driverId: Int!
+  rideId: String!
+}
+
+input CreateRideInput {
+  customerId: Int!
+  departureTime: String!
+  destinationLat: String!
+  destinationLong: String!
+  distance: String
+  originLat: String!
+  originLong: String!
+  pricingTiersId: String!
+  status: rideStatus = SCHEDULED
+  time: String!
+  vehicleId: String!
+}
+
+input CreateUserInput {
   email: String!
-  password: String!
   first_name: String!
   last_name: String!
-  role: userRoles!
-  id: Float!
+  password: String!
+  role: userRoles = USER
+  username: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input FeedbackInput {
+  feedback: String!
+  rating: Int!
+  rideId: String!
+}
+
+input GetAllRideInput {
+  id: String
+}
+
+input GetAllVehicleInput {
+  description: String
+  iconUrl: String
+  id: String
+  name: String
+}
+
+type LoginObject {
+  accessToken: String!
+  user: users!
+}
+
+type Mutation {
+  acceptRide(acceptRideInput: AcceptRideInput!): ride!
+  addFeedback(feedbackInput: FeedbackInput!): ride!
+  addPickupNotes(pickupNotes: String!, rideId: String!): ride!
+  createRide(createRideInput: CreateRideInput!): ride!
+  login(password: String!, username: String!): LoginObject!
+  removeUser(id: Int!): users!
+  signUp(createUserInput: CreateUserInput!): users!
+  updateUser(updateUserInput: UpdateUserInput!): users!
+}
+
+type Query {
+  findAllRides(getAllRideInput: GetAllRideInput!): [ride!]!
+  findAllUsers: [users!]!
+  findAllVehicles(getAllVehicleInput: GetAllVehicleInput): [vehicle!]!
+  user(id: Int!): users!
+}
+
+input UpdateUserInput {
+  email: String
+  first_name: String
+  id: Int!
+  last_name: String
+  password: String
+  role: userRoles = USER
+  username: String
+}
+
+type pricingTiers {
+  basePrice: String!
+  createdAt: DateTime!
+  description: String!
+  id: String!
+  name: String!
+  perMileRate: String!
+  perMinuteRate: String!
+  ridePricing: [ridePricing!]!
+  updatedAt: DateTime!
+}
+
+type ride {
+  availableSeats: String!
+  createdAt: DateTime!
+  customer: users
+  customerId: String
+  departureTime: String!
+  destination: String!
+  distance: String
+  driver: users
+  driverId: String
+  feedback: String!
+  id: String!
+  origin: String!
+  passengers: String!
+  pickupNotes: String!
+  price: String!
+  rating: Int!
+  rideCode: String!
+  ridePricing: [ridePricing!]!
+  status: rideStatus!
+  updatedAt: DateTime!
+}
+
+type ridePricing {
+  createdAt: DateTime!
+  id: String!
+  pricingTiers: pricingTiers!
+  pricingTiersId: String
+  ride: ride
+  rideId: String
+  updatedAt: DateTime!
+  vehicle: vehicle!
+  vehicleId: String
+}
+
+"""The supported ride status."""
+enum rideStatus {
+  CANCELED
+  COMPLETED
+  IN_PROGRESS
+  SCHEDULED
 }
 
 """The supported roles."""
 enum userRoles {
-  DRIVER
-  CUSTOMER
-  USER
   ADMIN
+  CUSTOMER
+  DRIVER
+  USER
 }
 
-type LoginObject {
-  user: users!
-  accessToken: String!
-}
-
-type Query {
-  findAllUsers: [users!]!
-  user(id: Int!): users!
-}
-
-type Mutation {
-  signUp(createUserInput: CreateUserInput!): users!
-  updateUser(updateUserInput: UpdateUserInput!): users!
-  removeUser(id: Int!): users!
-  login(username: String!, password: String!): LoginObject!
-}
-
-input CreateUserInput {
-  username: String!
-  password: String!
+type users {
+  customerRides: [ride!]
+  driverRides: [ride!]
   email: String!
   first_name: String!
+  id: Float!
   last_name: String!
-  role: userRoles = USER
+  password: String!
+  role: userRoles!
+  username: String!
 }
 
-input UpdateUserInput {
-  username: String
-  password: String
-  email: String
-  first_name: String
-  last_name: String
-  role: userRoles = USER
-  id: Int!
+type vehicle {
+  createdAt: DateTime!
+  description: String!
+  iconUrl: String!
+  id: String!
+  name: String!
+  ridePricing: [ridePricing!]!
+  updatedAt: DateTime!
 }

@@ -1,49 +1,109 @@
 // src/auth/user.entity.ts
-import { Field, ObjectType } from "@nestjs/graphql";
-import Role from "src/enums/roles.enum";
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Field, Int, ObjectType, registerEnumType } from "@nestjs/graphql";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+} from "typeorm";
+import { RidePricing } from "./ridePricing.entity";
+import { User } from "src/users/entities/user.entity";
+
+export enum RIDE_STATUS {
+  SCHEDULED = "scheduled",
+  IN_PROGRESS = "in progress",
+  COMPLETED = "completed",
+  CANCELED = "canceled",
+}
+
+registerEnumType(RIDE_STATUS, {
+  name: "rideStatus",
+  description: "The supported ride status.",
+});
 
 @ObjectType("ride")
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: number;
+export class Ride {
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column()
+  @Field(() => String)
   origin: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column()
+  @Field(() => String)
   destination: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column()
+  @Field(() => String)
   departureTime: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  distance: string;
+
+  @Column({ nullable: true })
+  @Field(() => String)
   availableSeats: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column()
+  @Field(() => String)
   price: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
-  status: string;
+  @Column({
+    type: "enum",
+    enum: RIDE_STATUS,
+    default: RIDE_STATUS.SCHEDULED,
+  })
+  @Field(() => RIDE_STATUS)
+  status: RIDE_STATUS;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column({ nullable: true })
+  @Field(() => String)
   passengers: string;
 
-  @Column(()=>String)
-  @Field(()=>String)
+  @Column({ nullable: true })
+  @Field(() => String)
   rideCode: string;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ nullable: true })
+  @Field(() => String)
+  pickupNotes: string;
+
+  @Column({ nullable: true })
+  @Field(() => String)
+  feedback: string;
+
+  @Column({ nullable: true })
+  @Field(() => Int)
+  rating: number;
+
+  @OneToMany(() => RidePricing, (ridePricing) => ridePricing.ride)
+  ridePricing: RidePricing[];
+
+  @ManyToOne(() => User, (user) => user.customerRides, { onDelete: 'CASCADE' })
+  @Field(() => User, { nullable: true })
+  customer: User;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  customerId: string;
+
+  @ManyToOne(() => User, (user) => user.driverRides, { onDelete: 'CASCADE' })
+  @Field(() => User, { nullable: true })
+  driver: User;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  driverId: string;
+
+  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
   updatedAt: Date;
 }
