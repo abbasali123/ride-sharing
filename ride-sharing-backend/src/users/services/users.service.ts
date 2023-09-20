@@ -14,7 +14,7 @@ export class UsersService {
   ) {}
 
   async findByUsername(username: string): Promise<User> {
-    return this.userRepository.findOne({ where: { username } });
+    return this.userRepository.findOne({ where: [{ username }, { email: username }] });
   }
 
   async createUser(createUserInput: CreateUserInput): Promise<User> {
@@ -84,7 +84,7 @@ export class UsersService {
       throw new InternalServerErrorException("User not found");
     }
 
-    const removedUser= this.userRepository.remove(user)
-    return removedUser
+    const removedUser = this.userRepository.remove(user);
+    return removedUser;
   }
 }

@@ -2,32 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input AcceptRideInput {
-  driverId: Int!
-  rideId: String!
-}
-
-input CreateRideInput {
-  customerId: Int!
-  departureTime: String!
-  destinationLat: String!
-  destinationLong: String!
-  distance: String
-  originLat: String!
-  originLong: String!
-  pricingTiersId: String!
-  status: rideStatus = SCHEDULED
-  time: String!
-  vehicleId: String!
-}
-
-input CreateUserInput {
-  email: String!
-  first_name: String!
-  last_name: String!
-  password: String!
-  role: userRoles = USER
-  username: String!
+type vehicle {
+  name: String!
+  description: String!
+  iconUrl: String!
+  id: String!
+  ridePricing: [ridePricing!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 """
@@ -35,10 +17,117 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-input FeedbackInput {
+type pricingTiers {
+  name: String!
+  description: String!
+  basePrice: String!
+  perMileRate: String!
+  perMinuteRate: String!
+  id: String!
+  ridePricing: [ridePricing!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ridePricing {
+  ride: ride
+  rideId: String
+  vehicleId: String
+  pricingTiersId: String
+  id: String!
+  vehicle: vehicle!
+  pricingTiers: pricingTiers!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type message {
+  content: String
+  senderId: String
+  chatId: String
+  chat: chat
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type chat {
+  rideId: String
+  ride: ride
+  messages: [message!]
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ride {
+  origin: String!
+  destination: String!
+  departureTime: String!
+  distance: String
+  availableSeats: String!
+  price: String!
+  status: rideStatus!
+  passengers: String!
+  rideCode: String!
+  pickupNotes: String!
   feedback: String!
   rating: Int!
-  rideId: String!
+  customer: users
+  customerId: String
+  driver: users
+  driverId: String
+  chat: chat
+  id: String!
+  ridePricing: [ridePricing!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""The supported ride status."""
+enum rideStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+type users {
+  username: String!
+  email: String!
+  password: String!
+  first_name: String!
+  last_name: String!
+  customerRides: [ride!]
+  driverRides: [ride!]
+  role: userRoles!
+  id: Float!
+}
+
+"""The supported roles."""
+enum userRoles {
+  DRIVER
+  CUSTOMER
+  USER
+  ADMIN
+}
+
+type LoginObject {
+  user: users!
+  accessToken: String!
+}
+
+type Query {
+  findAllUsers: [users!]!
+  user(id: Int!): users!
+  findAllRides(getAllRideInput: GetAllRideInput!): [ride!]!
+  findAllVehicles(getAllVehicleInput: GetAllVehicleInput): [vehicle!]!
+  chats: [chat!]!
+  chat(id: String!): chat!
+  findByRideId(rideId: String!): chat!
+  messages: [message!]!
+  message(id: String!): message!
+  findByChatId(chatId: String!): [message!]!
 }
 
 input GetAllRideInput {
@@ -46,126 +135,81 @@ input GetAllRideInput {
 }
 
 input GetAllVehicleInput {
-  description: String
-  iconUrl: String
   id: String
   name: String
-}
-
-type LoginObject {
-  accessToken: String!
-  user: users!
+  description: String
+  iconUrl: String
 }
 
 type Mutation {
-  acceptRide(acceptRideInput: AcceptRideInput!): ride!
-  addFeedback(feedbackInput: FeedbackInput!): ride!
-  addPickupNotes(pickupNotes: String!, rideId: String!): ride!
-  createRide(createRideInput: CreateRideInput!): ride!
-  login(password: String!, username: String!): LoginObject!
-  removeUser(id: Int!): users!
   signUp(createUserInput: CreateUserInput!): users!
   updateUser(updateUserInput: UpdateUserInput!): users!
+  removeUser(id: Int!): users!
+  createRide(createRideInput: CreateRideInput!): ride!
+  addPickupNotes(rideId: String!, pickupNotes: String!): ride!
+  addFeedback(feedbackInput: FeedbackInput!): ride!
+  acceptRide(acceptRideInput: AcceptRideInput!): ride!
+  login(username: String!, password: String!): LoginObject!
+  createChat(createChatInput: CreateChatInput!): chat!
+  removeChat(id: String!): chat!
+  createMessage(createMessageInput: CreateMessageInput!): message!
+  removeMessage(id: String!): message!
 }
 
-type Query {
-  findAllRides(getAllRideInput: GetAllRideInput!): [ride!]!
-  findAllUsers: [users!]!
-  findAllVehicles(getAllVehicleInput: GetAllVehicleInput): [vehicle!]!
-  user(id: Int!): users!
+input CreateUserInput {
+  username: String!
+  password: String!
+  email: String!
+  first_name: String!
+  last_name: String!
+  role: userRoles = USER
 }
 
 input UpdateUserInput {
+  username: String
+  password: String
   email: String
   first_name: String
-  id: Int!
   last_name: String
-  password: String
   role: userRoles = USER
-  username: String
+  id: Int!
 }
 
-type pricingTiers {
-  basePrice: String!
-  createdAt: DateTime!
-  description: String!
-  id: String!
-  name: String!
-  perMileRate: String!
-  perMinuteRate: String!
-  ridePricing: [ridePricing!]!
-  updatedAt: DateTime!
-}
-
-type ride {
-  availableSeats: String!
-  createdAt: DateTime!
-  customer: users
-  customerId: String
+input CreateRideInput {
+  originLat: String!
+  originLong: String!
+  destinationLat: String!
+  destinationLong: String!
   departureTime: String!
-  destination: String!
   distance: String
-  driver: users
-  driverId: String
-  feedback: String!
-  id: String!
-  origin: String!
-  passengers: String!
-  pickupNotes: String!
-  price: String!
+  status: rideStatus = SCHEDULED
+  vehicleId: String!
+  pricingTiersId: String!
+  time: String!
+  customerId: Int!
+}
+
+input FeedbackInput {
+  rideId: String!
   rating: Int!
-  rideCode: String!
-  ridePricing: [ridePricing!]!
-  status: rideStatus!
-  updatedAt: DateTime!
+  feedback: String!
 }
 
-type ridePricing {
-  createdAt: DateTime!
-  id: String!
-  pricingTiers: pricingTiers!
-  pricingTiersId: String
-  ride: ride
-  rideId: String
-  updatedAt: DateTime!
-  vehicle: vehicle!
-  vehicleId: String
+input AcceptRideInput {
+  rideId: String!
+  driverId: Int!
 }
 
-"""The supported ride status."""
-enum rideStatus {
-  CANCELED
-  COMPLETED
-  IN_PROGRESS
-  SCHEDULED
+input CreateChatInput {
+  rideId: String!
 }
 
-"""The supported roles."""
-enum userRoles {
-  ADMIN
-  CUSTOMER
-  DRIVER
-  USER
+input CreateMessageInput {
+  chatId: String!
+  senderId: String!
+  content: String!
 }
 
-type users {
-  customerRides: [ride!]
-  driverRides: [ride!]
-  email: String!
-  first_name: String!
-  id: Float!
-  last_name: String!
-  password: String!
-  role: userRoles!
-  username: String!
-}
-
-type vehicle {
-  createdAt: DateTime!
-  description: String!
-  iconUrl: String!
-  id: String!
-  name: String!
-  ridePricing: [ridePricing!]!
-  updatedAt: DateTime!
+type Subscription {
+  onNewMessageSent(chatId: String!): message!
 }

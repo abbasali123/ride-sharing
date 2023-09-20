@@ -12,6 +12,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { RidesModule } from "./rides/rides.module";
 import typeorm from "./config/typeorm";
 import { join } from "path";
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -24,20 +25,34 @@ import { join } from "path";
       useFactory: async (configService: ConfigService) => configService.get("typeorm"),
     }),
 
-    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+    // GraphQLModule.forRootAsync<ApolloDriverConfig>({
+    //   driver: ApolloDriver,
+    //   useFactory: (config: ConfigService) => {
+    //     return {
+    //       debug: true,
+    //       playground: true,
+    //       autoSchemaFile: "schema.gql",
+    //       sortSchema: true,
+    //       fieldResolverEnhancers: ["interceptors"] as Enhancer[],
+    //       autoTransformHttpErrors: true,
+    //       context: (context) => context,
+    //       subscriptions: {
+    //         'graphql-ws': true,
+    //       },
+    //       installSubscriptionHandlers: true,
+    //     };
+    //   },
+    //   inject: [ConfigService],
+    // }),
+    GraphQLModule.forRoot({
       driver: ApolloDriver,
-      useFactory: (config: ConfigService) => {
-        return {
-          debug: true,
-          playground: true,
-          autoSchemaFile: "schema.gql",
-          sortSchema: true,
-          fieldResolverEnhancers: ["interceptors"] as Enhancer[],
-          autoTransformHttpErrors: true,
-          context: (context) => context,
-        };
+      autoSchemaFile: "schema.gql",
+      installSubscriptionHandlers: true,
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          path:"/graphql"
+        }
       },
-      inject: [ConfigService],
     }),
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   driver: ApolloDriver,
@@ -60,6 +75,7 @@ import { join } from "path";
     UsersModule,
     AuthModule,
     RidesModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

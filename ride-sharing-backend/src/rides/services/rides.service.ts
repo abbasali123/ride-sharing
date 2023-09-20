@@ -157,8 +157,8 @@ export class RidesService {
     return this.rideRepository.find({ where: getAllRideInput });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ride`;
+  findOne(id: string) {
+    return this.rideRepository.findOne({ where: { id } });
   }
 
   // update(id: number, updateRideInput: UpdateRideInput) {

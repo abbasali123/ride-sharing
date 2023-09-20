@@ -8,9 +8,12 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from "typeorm";
 import { RidePricing } from "./ridePricing.entity";
 import { User } from "src/users/entities/user.entity";
+import { Chat } from "src/chat/entities/chat.entity";
 
 export enum RIDE_STATUS {
   SCHEDULED = "scheduled",
@@ -100,6 +103,10 @@ export class Ride {
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
   driverId: string;
+
+  @Field(() => Chat, { nullable: true })
+  @OneToOne(() => Chat, (chat) => chat.ride)
+  chat: Chat;
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
